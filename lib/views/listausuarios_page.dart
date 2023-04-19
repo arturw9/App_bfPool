@@ -1,45 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_crud/controller/UserController.dart';
+import 'package:flutter_crud/repository/user_repository.dart';
 import '../main.dart';
 import '../models/user.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-class User {
-  final String senha;
-  final String email;
-
-  User({required this.senha, required this.email});
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      email: json['email'],
-      senha: json['senha'],
-    );
-  }
-}
-
-class UserAPI {
-  static Future<List<User>> getUsers() async {
-    HttpClient client = new HttpClient();
-    client.badCertificateCallback =
-        ((X509Certificate cert, String host, int port) => true);
-
-    var url = Uri.parse('https://10.0.2.2:7070/api/AllUsers');
-    var request = await client.getUrl(url);
-    var response = await request.close();
-
-    if (response.statusCode == 200) {
-      final jsonData =
-          json.decode(await response.transform(utf8.decoder).join())
-              as List<dynamic>;
-      return jsonData.map((user) => User.fromJson(user)).toList();
-    } else {
-      throw Exception('Falha ao carregar usuários');
-    }
-  }
-}
 
 class ListaUsuarios extends StatefulWidget {
   const ListaUsuarios({super.key});
@@ -50,11 +17,13 @@ class ListaUsuarios extends StatefulWidget {
 
 class _ListaUsuariosState extends State<ListaUsuarios> {
   late Future<List<User>> _futureUsers;
+  final TextEditingController _searchController = TextEditingController();
+  var userController = UserController(UserRepository());
 
   @override
   void initState() {
     super.initState();
-    _futureUsers = UserAPI.getUsers();
+    // _futureUsers = UserAPI.getUsers();
     HttpOverrides.global = MyHttpOverrides();
   }
 
@@ -63,27 +32,116 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text('LISTA DE CLIENTES')),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {},
+          )
+        ],
       ),
       body: FutureBuilder<List<User>>(
-        future: UserAPI.getUsers(),
+        future: userController.fetchUserList(),
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('error'),
+            );
+          }
           if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final user = snapshot.data![index];
-                return ListTile(
-                  title: Text(user.senha),
-                  subtitle: Text(user.email),
-                );
-              },
+            final filteredUsers = snapshot.data!
+                .where((user) => user.email
+                    .toLowerCase()
+                    .contains(_searchController.text.toLowerCase()))
+                .toList();
+            return Column(
+              children: [
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Pesquisar',
+                    prefixIcon: Icon(Icons.search),
+                  ),
+                  onChanged: (value) {
+                    setState(
+                        () {}); // Atualiza a tela quando o usuário digitar algo na caixa de pesquisa.
+                  },
+                ),
+                Expanded(
+                  child: SafeArea(
+                    child: ListView.builder(
+                      itemCount: filteredUsers.length,
+                      itemBuilder: (context, index) {
+                        final user = filteredUsers[index];
+                        return Card(
+                          child: ListTile(
+                            title: Text(user.email),
+                            subtitle: Text(user.senha),
+                            trailing: Container(
+                              width: 100,
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                      icon: Icon(Icons.edit),
+                                      color: Colors.orange,
+                                      onPressed: () {
+                                        userController
+                                            .updateUser(user)
+                                            .then((value) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              duration: const Duration(
+                                                  milliseconds: 500),
+                                              content: Text('$value'),
+                                            ),
+                                          );
+                                        });
+                                      }),
+                                  IconButton(
+                                      icon: Icon(Icons.delete),
+                                      color: Colors.red,
+                                      onPressed: () {
+                                        userController
+                                            .deleteUser(user)
+                                            .then((value) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              duration: const Duration(
+                                                  milliseconds: 500),
+                                              content: Text('$value'),
+                                            ),
+                                          );
+                                        });
+                                      })
+                                ],
+                              ),
+                            ),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(
+                              color: Colors.blue,
+                              width: 2.0,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             );
           } else if (snapshot.hasError) {
             return Center(
               child: Text('${snapshot.error}'),
             );
           }
-
           return Center(
             child: CircularProgressIndicator(),
           );
@@ -92,45 +150,3 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
     );
   }
 }
-
-// class UserAPI {
-//   static Future<List<User>> getUsers() async {
-//     HttpClient client = new HttpClient();
-//     client.badCertificateCallback =
-//         ((X509Certificate cert, String host, int port) => true);
-
-//     var url = 'https://10.0.2.2:7070/api/AllUsers'; // 192.168.1.5
-
-//     Map params = {"email": null, 'senha': null};
-
-//     HttpClientRequest request = await client.getUrl(Uri.parse(url));
-//     request.headers.set('content-type', 'application/json');
-//     request.add(utf8.encode(json.encode(params)));
-//     HttpClientResponse response = await request.close();
-
-//     print("json enviado LISTA USUARIOS: $request");
-//     print("Response status LISTA USUARIOS: ${response.statusCode}");
-
-//     if (response.statusCode == 200) {
-//       final jsonData = json.decode(request) as List<dynamic>;
-//       return jsonData.map((user) => User.fromJson(user)).toList();
-//     } else {
-//       // print(jsonDecode(response.toString()));
-//       return false;
-//     }
-//   }
-// }
-
-
-//  HttpClient client = new HttpClient();
-//     client.badCertificateCallback =
-//         ((X509Certificate cert, String host, int port) => true);
-
-//     var url = 'https://10.0.2.2:7070/api/Login'; // 192.168.1.5
-
-//     Map params = {
-//       "email": _emailController.text,
-//       'senha': _passwordController.text
-//     };
-
-//     HttpClientRequest request = await client.postUrl(Uri.parse(url));
