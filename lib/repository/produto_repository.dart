@@ -4,7 +4,7 @@ import 'package:flutter_crud/repository/repository.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class UserRepository implements Repository {
+class ProdutoRepository implements Repository {
   String dataURL = 'https://10.0.2.2:7070/api';
   @override
   Future<String> deletedTodo(User user) async {
@@ -77,9 +77,16 @@ class UserRepository implements Repository {
   }
 
   @override
-  Future<List<Produto>> getTodoListProduto() {
-    // TODO: implement getTodoListProduto
-    throw UnimplementedError();
+  Future<List<Produto>> getTodoListProduto() async {
+    List<Produto> todoList = [];
+    var url = Uri.parse('$dataURL/AllItems');
+    var response = await http.get(url);
+    print('status code : ${response.statusCode}');
+    var body = json.decode(response.body);
+    for (var i = 0; i < body.length; i++) {
+      todoList.add(Produto.fromJson(body[i]));
+    }
+    return todoList;
   }
 
   @override

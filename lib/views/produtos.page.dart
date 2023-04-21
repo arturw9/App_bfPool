@@ -2,23 +2,27 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_crud/controller/UserController.dart';
+import 'package:flutter_crud/models/produto.dart';
 import 'package:flutter_crud/repository/user_repository.dart';
+import '../controller/ProdutoController.dart';
 import '../main.dart';
 import '../models/user.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class ListaUsuarios extends StatefulWidget {
-  const ListaUsuarios({super.key});
+import '../repository/produto_repository.dart';
+
+class Produtos extends StatefulWidget {
+  const Produtos({super.key});
 
   @override
-  State<ListaUsuarios> createState() => _ListaUsuariosState();
+  State<Produtos> createState() => _ProdutosState();
 }
 
-class _ListaUsuariosState extends State<ListaUsuarios> {
-  late Future<List<User>> _futureUsers;
+class _ProdutosState extends State<Produtos> {
+  late Future<List<Produto>> _futureProdutos;
   final TextEditingController _searchController = TextEditingController();
-  var userController = UserController(UserRepository());
+  var produtoController = ProdutoController(ProdutoRepository());
 
   @override
   void initState() {
@@ -31,7 +35,7 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text('LISTA DE CLIENTES')),
+        title: Center(child: Text('LISTA DE PRODUTOS')),
         actions: [
           IconButton(
             icon: Icon(Icons.add),
@@ -39,12 +43,12 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
           )
         ],
       ),
-      body: FutureBuilder<List<User>>(
-        future: userController.fetchUserList(),
+      body: FutureBuilder<List<Produto>>(
+        future: produtoController.fetchProdutoList(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final filteredUsers = snapshot.data!
-                .where((user) => user.email
+                .where((user) => user.nome
                     .toLowerCase()
                     .contains(_searchController.text.toLowerCase()))
                 .toList();
@@ -66,11 +70,14 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
                     child: ListView.builder(
                       itemCount: filteredUsers.length,
                       itemBuilder: (context, index) {
-                        final user = filteredUsers[index];
+                        final produto = filteredUsers[index];
                         return Card(
                           child: ListTile(
-                            title: Text(user.email),
-                            subtitle: Text(user.senha),
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(produto.imagem),
+                            ),
+                            title: Text(produto.nome),
+                            subtitle: Text(produto.valor),
                             trailing: Container(
                               width: 100,
                               child: Row(
@@ -79,8 +86,8 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
                                       icon: Icon(Icons.edit),
                                       color: Colors.orange,
                                       onPressed: () {
-                                        userController
-                                            .updateUser(user)
+                                        produtoController
+                                            .updateProduto(produto)
                                             .then((value) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
@@ -96,8 +103,8 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
                                       icon: Icon(Icons.delete),
                                       color: Colors.red,
                                       onPressed: () {
-                                        userController
-                                            .deleteUser(user)
+                                        produtoController
+                                            .deleteProduto(produto)
                                             .then((value) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(

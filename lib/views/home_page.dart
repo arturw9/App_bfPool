@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_crud/views/listausuarios_page.dart';
+import 'package:flutter_crud/views/produtos.page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,6 +19,7 @@ class _HomePageState extends State<HomePage> {
         title: Center(child: Text("HOME")),
       ),
       body: Container(
+        color: Color.fromARGB(255, 4, 240, 248),
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: GridView(
@@ -25,7 +27,7 @@ class _HomePageState extends State<HomePage> {
               InkWell(
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => HomePage()));
+                      MaterialPageRoute(builder: (context) => Produtos()));
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -36,12 +38,12 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.question_answer,
+                        Icons.store,
                         size: 50,
                         color: Colors.white,
                       ),
                       Text(
-                        "Avisos",
+                        "Produtos",
                         style: TextStyle(color: Colors.white, fontSize: 30),
                       )
                     ],
@@ -92,12 +94,16 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.settings,
+                        Icons.question_answer,
                         size: 50,
                         color: Colors.white,
                       ),
                       Text(
-                        "Settings",
+                        "Enviar",
+                        style: TextStyle(color: Colors.white, fontSize: 30),
+                      ),
+                      Text(
+                        "avisos",
                         style: TextStyle(color: Colors.white, fontSize: 30),
                       )
                     ],
@@ -118,12 +124,16 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.book,
+                        Icons.calendar_month,
                         size: 50,
                         color: Colors.white,
                       ),
                       Text(
-                        "Books",
+                        "Avisos",
+                        style: TextStyle(color: Colors.white, fontSize: 30),
+                      ),
+                      Text(
+                        "agendados",
                         style: TextStyle(color: Colors.white, fontSize: 30),
                       )
                     ],
