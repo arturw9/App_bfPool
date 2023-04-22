@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_crud/controller/UserController.dart';
 import 'package:flutter_crud/repository/user_repository.dart';
+import 'package:flutter_crud/views/deletionscreean.dart';
+import 'package:flutter_crud/views/produtos.page.dart';
+import 'package:flutter_crud/views/registrationScreen%20.dart';
 import '../main.dart';
 import '../models/user.dart';
 import 'dart:convert';
@@ -35,7 +38,12 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => RegistrationScreen()));
+            },
           )
         ],
       ),
@@ -96,18 +104,13 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
                                       icon: Icon(Icons.delete),
                                       color: Colors.red,
                                       onPressed: () {
-                                        userController
-                                            .deleteUser(user)
-                                            .then((value) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              duration: const Duration(
-                                                  milliseconds: 500),
-                                              content: Text('$value'),
-                                            ),
-                                          );
-                                        });
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    DeletionScreen(
+                                                      email: user.email,
+                                                    )));
                                       })
                                 ],
                               ),
