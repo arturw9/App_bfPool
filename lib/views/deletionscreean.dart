@@ -47,7 +47,14 @@ class _DeletionScreenState extends State<DeletionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Exclusão'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => ListaUsuarios()));
+          },
+        ),
+        title: Text('DELETAR CLIENTE'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),

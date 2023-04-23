@@ -49,7 +49,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro de clientes'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => ListaUsuarios()));
+          },
+        ),
+        title: Text('CADASTRO DE CLIENTES'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),

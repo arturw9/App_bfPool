@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_crud/controller/UserController.dart';
 import 'package:flutter_crud/repository/user_repository.dart';
 import 'package:flutter_crud/views/deletionscreean.dart';
+import 'package:flutter_crud/views/edituserscreen.dart';
+import 'package:flutter_crud/views/home_page.dart';
 import 'package:flutter_crud/views/produtos.page.dart';
 import 'package:flutter_crud/views/registrationScreen%20.dart';
 import '../main.dart';
@@ -34,6 +36,13 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => HomePage()));
+          },
+        ),
         title: Center(child: Text('LISTA DE CLIENTES')),
         actions: [
           IconButton(
@@ -87,18 +96,13 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
                                       icon: Icon(Icons.edit),
                                       color: Colors.orange,
                                       onPressed: () {
-                                        userController
-                                            .updateUser(user)
-                                            .then((value) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              duration: const Duration(
-                                                  milliseconds: 500),
-                                              content: Text('$value'),
-                                            ),
-                                          );
-                                        });
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EditUserScreen(
+                                                      user: user,
+                                                    )));
                                       }),
                                   IconButton(
                                       icon: Icon(Icons.delete),
