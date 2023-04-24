@@ -113,8 +113,8 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     DeletionScreen(
-                                                      email: user.email,
-                                                    )));
+                                                        email: user.email,
+                                                        id: user.id)));
                                       })
                                 ],
                               ),

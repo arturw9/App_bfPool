@@ -53,17 +53,16 @@ Widget _introScreen() {
         gradientBackground: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color(0xffED213A), Color(0xff93291E)],
+          colors: [Color(0xffb0e9f9), Color(0xffb0e9f9)],
         ),
         navigateAfterSeconds: LoginPage(),
         loaderColor: Colors.transparent,
       ),
-      Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/logo.png"),
-            fit: BoxFit.none,
-          ),
+      Center(
+        child: SizedBox(
+          width: 360,
+          height: 360,
+          child: Image.asset("assets/logo.png"),
         ),
       ),
     ],

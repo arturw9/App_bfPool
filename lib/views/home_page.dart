@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter_crud/views/enviaravisos_page.dart';
 import 'package:flutter_crud/views/listausuarios_page.dart';
 import 'package:flutter_crud/views/produtos.page.dart';
 
@@ -84,7 +85,7 @@ class _HomePageState extends State<HomePage> {
               InkWell(
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => HomePage()));
+                      MaterialPageRoute(builder: (context) => EnviarAvisos()));
                 },
                 child: Container(
                   decoration: BoxDecoration(

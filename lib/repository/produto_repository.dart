@@ -71,9 +71,14 @@ class ProdutoRepository implements Repository {
   }
 
   @override
-  Future<String> deletedTodoProduto(Produto produto) {
-    // TODO: implement deletedTodoProduto
-    throw UnimplementedError();
+  Future<String> deletedTodoProduto(Produto produto) async {
+    var url = Uri.parse('$dataURL/DeleteItem?id=${produto.id}');
+    var result = 'false';
+    await http.delete(url).then((value) {
+      print(value.body);
+      return result = 'true';
+    });
+    return result;
   }
 
   @override
@@ -96,8 +101,18 @@ class ProdutoRepository implements Repository {
   }
 
   @override
-  Future<Produto> updateProduto(Produto produto) {
-    // TODO: implement updateProduto
-    throw UnimplementedError();
+  Future<Produto> updateProduto(Produto produto) async {
+    final response = await http.put(
+      Uri.parse('$dataURL/UpdateItens?id=${produto.id}'),
+      headers: {"Content-Type": "application/json"},
+      body: json.encode(produto.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      print(response.body);
+      return Produto.fromJson(json.decode(response.body));
+    } else {
+      throw Exception("Failed to update user.");
+    }
   }
 }

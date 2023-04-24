@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_crud/controller/UserController.dart';
 import 'package:flutter_crud/models/produto.dart';
 import 'package:flutter_crud/repository/user_repository.dart';
+import 'package:flutter_crud/views/cadastrarprodutos_page.dart';
+import 'package:flutter_crud/views/deletionitemscreen_page.dart';
+import 'package:flutter_crud/views/edititemscreen.dart';
+import 'package:flutter_crud/views/home_page.dart';
 import '../controller/ProdutoController.dart';
 import '../main.dart';
 import '../models/user.dart';
@@ -35,11 +39,21 @@ class _ProdutosState extends State<Produtos> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => HomePage()));
+          },
+        ),
         title: Center(child: Text('LISTA DE PRODUTOS')),
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CadastrarProdutos()));
+            },
           )
         ],
       ),
@@ -86,35 +100,25 @@ class _ProdutosState extends State<Produtos> {
                                       icon: Icon(Icons.edit),
                                       color: Colors.orange,
                                       onPressed: () {
-                                        produtoController
-                                            .updateProduto(produto)
-                                            .then((value) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              duration: const Duration(
-                                                  milliseconds: 500),
-                                              content: Text('$value'),
-                                            ),
-                                          );
-                                        });
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EditItemScreen(
+                                                      produto: produto,
+                                                    )));
                                       }),
                                   IconButton(
                                       icon: Icon(Icons.delete),
                                       color: Colors.red,
                                       onPressed: () {
-                                        produtoController
-                                            .deleteProduto(produto)
-                                            .then((value) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              duration: const Duration(
-                                                  milliseconds: 500),
-                                              content: Text('$value'),
-                                            ),
-                                          );
-                                        });
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    DeletionItemScreen(
+                                                        nome: produto.nome,
+                                                        id: produto.id)));
                                       })
                                 ],
                               ),

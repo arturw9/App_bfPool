@@ -1,11 +1,13 @@
 class Produto {
+  final String? id;
   final String nome;
   final String imagem;
   final String valor;
   final String quantidade;
 
   Produto(
-      {required this.nome,
+      {required this.id,
+      required this.nome,
       required this.imagem,
       required this.valor,
       required this.quantidade});
@@ -16,6 +18,7 @@ class Produto {
       imagem: json['imagem'],
       valor: json['valor'],
       quantidade: json['quantidade'],
+      id: json['id'],
     );
   }
 
@@ -25,6 +28,7 @@ class Produto {
     data['imagem'] = this.imagem;
     data['valor'] = this.valor;
     data['quantidade'] = this.quantidade;
+    data['id'] = this.id;
     return data;
   }
 }
