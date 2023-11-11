@@ -1,6 +1,7 @@
+import 'package:dio/io.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class EnviarAvisos extends StatefulWidget {
   @override
@@ -8,119 +9,177 @@ class EnviarAvisos extends StatefulWidget {
 }
 
 class _EnviarAvisosState extends State<EnviarAvisos> {
-  late String _selectedOption1 = "Opção 1";
-  late String _selectedOption2 = "Opção 2";
-  String _textFieldValue = "";
-  DateTime _selectedDate = DateTime.now();
-  bool _isChecked = false;
+  List<String> _dataUsers = [];
+  List<String> _dataItems = [];
+  late String _selectedItemUsers = ""; // Item selecionado no DropdownButton
+  late String _selectedItemItems = ""; // Item selecionado no DropdownButton
+  bool _isLoading = false; // Indicador de carregamento
+  String _userInput =
+      ''; // Variável para armazenar o texto digitado pelo usuário
 
-  final List<String> _options1 = ["Opção 1", "Opção 2", "Opção 3"];
-  final List<String> _options2 = ["Opção A", "Opção B", "Opção C"];
+  @override
+  void initState() {
+    super.initState();
+    fetchData(); // Chama o método fetchData() para buscar os dados da URL
+  }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2015, 8),
-      lastDate: DateTime(2101),
-    );
+  Future<void> fetchData() async {
+    setState(() {
+      _isLoading = true; // Ativa o indicador de carregamento
+    });
 
-    if (picked != null && picked != _selectedDate)
+    final dio = Dio();
+    dio.options.validateStatus = (status) => true;
+    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+        (client) {
+      client.badCertificateCallback = (cert, host, port) => true;
+      return client;
+    };
+
+    final responseUsers = await dio.get('https://10.0.2.2:7070/api/AllUsers');
+
+    if (responseUsers.statusCode == 200) {
+      final jsonData = responseUsers.data as List<dynamic>;
+      final extractedData = jsonData.map((item) {
+        final id = item["id"].toString();
+        final email = item["email"].toString();
+        final senha = item["senha"].toString();
+
+        // Aqui você pode extrair mais chaves conforme necessário
+
+        // Combine os valores em uma única string
+        return '$email, $senha'; // Ou a combinação que desejar
+      }).toList();
       setState(() {
-        _selectedDate = picked;
+        _dataUsers = extractedData; // Atualiza a lista de dados
+        _selectedItemUsers =
+            _dataUsers[0]; // Define o primeiro item como padrão
       });
+    }
+
+    final responseItems = await dio.get('https://10.0.2.2:7070/api/AllItems');
+
+    if (responseItems.statusCode == 200) {
+      final jsonData = responseItems.data as List<dynamic>;
+      final extractedDataItems = jsonData.map((item) {
+        final id = item["id"].toString();
+        final nome = item["nome"].toString();
+        final imagem = item["imagem"].toString();
+        final valor = item["valor"].toString();
+        final quantidade = item["quantidade"].toString();
+
+        // Aqui você pode extrair mais chaves conforme necessário
+
+        // Combine os valores em uma única string
+        return '$nome, $valor'; // Ou a combinação que desejar
+      }).toList();
+      setState(() {
+        _dataItems = extractedDataItems; // Atualiza a lista de dados
+        _selectedItemItems =
+            _dataItems[0]; // Define o primeiro item como padrão
+      });
+    }
+
+    setState(() {
+      _isLoading = false; // Desativa o indicador de carregamento
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("ENVIAR AVISO"),
+        title: Text('Enviar Avisos/Notificações'),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text("Selecione o cliente: "),
-            DropdownButton<String>(
-              value: _selectedOption1,
-              items: _options1
-                  .toSet() // Remove valores duplicados
-                  .map((option) => DropdownMenuItem(
-                        child: Text(option),
-                        value: option,
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedOption1 = value!;
-                });
-              },
-            ),
-            // SizedBox(height: 16),
-            // DropdownButton<String>(
-            //   value: _selectedOption2,
-            //   items: _options2
-            //       .toSet() // Remove valores duplicados
-            //       .map((option) => DropdownMenuItem(
-            //             child: Text(option),
-            //             value: option,
-            //           ))
-            //       .toList(),
-            //   onChanged: (value) {
-            //     setState(() {
-            //       _selectedOption2 = value!;
-            //     });
-            //   },
-            // ),
-            SizedBox(height: 16),
-            TextField(
-              onChanged: (String newValue) {
-                setState(() {
-                  _textFieldValue = newValue;
-                });
-              },
-              decoration: InputDecoration(
-                hintText: "Digite algo",
-              ),
-            ),
-            SizedBox(height: 16),
-            Row(
-              children: [
-                Checkbox(
-                  value: _isChecked,
-                  onChanged: (bool? newValue) {
-                    setState(() {
-                      _isChecked = newValue ?? false;
-                    });
-                  },
-                ),
-                Text(
-                  'Enviar agora',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            GestureDetector(
-              onTap: () {
-                _selectDate(context);
-              },
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today),
-                  SizedBox(width: 8),
-                  Text(DateFormat('dd/MM/yyyy').format(_selectedDate)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: Center(
+          child: _isLoading
+              ? SpinKitCircle(color: Colors.blue) // Indicador de carregamento
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 128,
+                      height: 128,
+                      child: Image.asset("assets/logo.png"),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "SELECIONE O CLIENTE",
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                    ),
+                    DropdownButton<String>(
+                      value: _selectedItemUsers,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedItemUsers = value!;
+                        });
+                      },
+                      items: _dataUsers
+                          .map((item) => DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(item),
+                              ))
+                          .toList(),
+                    ),
+                    Text(
+                      "SELECIONE O ITEM",
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                    DropdownButton<String>(
+                      value: _selectedItemItems,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedItemItems = value!;
+                        });
+                      },
+                      items: _dataItems
+                          .map((item) => DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(item),
+                              ))
+                          .toList(),
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      child: TextField(
+                        onChanged: (text) {
+                          // Este callback é chamado sempre que o texto é alterado
+                          setState(() {
+                            _userInput =
+                                text; // Atualiza a variável com o texto digitado
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          hintText: 'Digite mensagem de alerta (Opcional).',
+                          hintStyle: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text("Enviar WhatsApp"),
+                              Icon(Icons.phone),
+                            ],
+                          )
+                        ],
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.green,
+                        onPrimary: Colors.white,
+                        onSurface: Colors.grey,
+                      ),
+                      onPressed: () {},
+                    )
+                  ],
+                )),
     );
   }
 }

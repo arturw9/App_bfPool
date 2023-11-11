@@ -1,12 +1,9 @@
-// --no-sound-null-safety
-// @dart=2.9
-
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crud/views/login_page.dart';
-import 'package:splashscreen/splashscreen.dart';
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -38,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class MyHttpOverrides extends HttpOverrides {
   @override
-  HttpClient createHttpClient(SecurityContext context) {
+  HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
       ..badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
@@ -46,25 +43,11 @@ class MyHttpOverrides extends HttpOverrides {
 }
 
 Widget _introScreen() {
-  return Stack(
-    children: <Widget>[
-      SplashScreen(
-        seconds: 5,
-        gradientBackground: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [Color(0xffb0e9f9), Color(0xffb0e9f9)],
-        ),
-        navigateAfterSeconds: LoginPage(),
-        loaderColor: Colors.transparent,
-      ),
-      Center(
-        child: SizedBox(
-          width: 360,
-          height: 360,
-          child: Image.asset("assets/logo.png"),
-        ),
-      ),
-    ],
+  return AnimatedSplashScreen(
+    splash: Image.asset("assets/logo.png"),
+    nextScreen: LoginPage(),
+    splashTransition: SplashTransition.scaleTransition,
+    backgroundColor: Color(0xffb0e9f9),
+    duration: 5000, // tempo em milissegundos
   );
 }
